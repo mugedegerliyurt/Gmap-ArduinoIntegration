@@ -2,11 +2,11 @@
     {
         GMapOverlay _overlayOne;
         public static String LatLangValues { get; set; }
-        delegate void BackgroundWorker(string text);
 
         //Arduino seri portundan data çekmek için gerekli tanımlamalar.
-        readonly SerialPort _serialPort = new SerialPort("COM3", 9600, Parity.None, 8, StopBits.One);
+        readonly SerialPort _serialPort = new SerialPort("COM3", 9600, Parity.None, 8, StopBits.None);
         private object _currentSerialSettings;
+        BackgroundWorker bw = new BackgroundWorker();
 
         public Form1()
         {
@@ -17,37 +17,29 @@
         {
             //Threads work asyncron so order is not important.
             //To get serial data from Arduino
-            Thread tid1 = new Thread(GetSerialDataThread);
+            //Thread tid1 = new Thread(GetSerialDataThread);
             //To set overlays on map from serial data from Arduino
-            Thread tid2 = new Thread(SetOverlayFromSerialDataThread);
+            //Thread tid2 = new Thread(SetOverlayFromSerialDataThread);
             
-            tid1.Start();
-            tid2.Start();
-        }
-
-        private void sp_DataReceived(object sender, SerialDataReceivedEventArgs e)
-        {
-            try
-            {
-                SetText(_serialPort.ReadExisting());
-            }
-
-            catch (Exception ex)
-            {
-                SetText(ex.ToString());
-            }
-            //Write the serial port data to the console.
-            Console.Write(_serialPort.ReadExisting());
-        }
-
-        public void GetSerialDataThread()
-        {
-            //Set the datareceived event handler
-            _serialPort.DataReceived += sp_DataReceived;
-            //Open the serial port
-            _serialPort.Open();
-            //Read from the console, to stop it from closing.
+            //tid1.Start();
+            //tid2.Start();
+            
+            bw.DoWork += new DoWorkEventHandler(SerialPortReceive);
+            bw.RunWorkerAsync();
             Console.Read();
+        }
+
+        private void SerialPortReceive()
+        {
+          _serialPort.Open();
+          while(true)
+          {
+            _serialPort.Read();
+           
+           
+           
+          }
+          
         }
 
         public void SetOverlayFromSerialDataThread()
@@ -72,19 +64,5 @@
             gMapControl.Overlays.Add(_overlayOne);
 
         }
-
-        private void SetText(string text)
-        {
-            //if (this.txtOutput.InvokeRequired)
-            {
-                BackgroundWorker d = SetText;
-                BeginInvoke(d, new object[] { text });
-            }
-            //else
-            {
-               // txtOutput.AppendText(text);
-            }
-        }
-
 
     }
