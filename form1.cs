@@ -34,22 +34,32 @@ public partial class Form1 : Form
 
                 while (true)
                 {
+                    string latValue = string.Empty;
+                    string langValue = string.Empty;
+
                     var receivedChar = (char)_serialPort.ReadChar();
                     charBuffer[index] = receivedChar;
                     index++;
+
                     if (receivedChar == 0x10) // lf'in hex değerini koy
                     {
                         var s = new String(charBufferValue, 0, index);
+                        //virgüle göre split ettik gelen dataları böylece her , de array e bir eleman atıyoruz.
                         String[] stringValues = s.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+                        //ASCII kod çevrimi yapılmalı??
+
+                        //Arduino'dan sırası ile hangi datalar geliyorsa lat veya lang ona göre indexi belirtilmeli.
+                        latValue = stringValues[2];
+                        langValue = stringValues[3];
+
+                        double latValueDouble = Convert.ToDouble(latValue);
+                        double langValueInteger = Convert.ToDouble(langValue);
+
+                        SetOverlay(latValueDouble, langValueInteger);
                         index = 0;
                     }
                 }
-
-
-                //double latitude = charBufferValue;
-                //double langtitude = charBufferValue;
-
-                //SetOverlay(latitude, langtitude);
             }
         // ReSharper disable FunctionNeverReturns
         }
