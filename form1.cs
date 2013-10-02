@@ -2,11 +2,10 @@ public partial class Form1 : Form
     {
         GMapOverlay _overlayOne;
         public static String LatLangValues { get; set; }
-        BackgroundWorker bw = new BackgroundWorker();
+        readonly BackgroundWorker _bw = new BackgroundWorker();
         //Arduino seri portundan data çekmek için gerekli tanımlamalar.
         readonly SerialPort _serialPort = new SerialPort("COM3", 9600, Parity.None, 8, StopBits.None);
-        private object _currentSerialSettings;
-        
+
 
         public Form1()
         {
@@ -15,36 +14,49 @@ public partial class Form1 : Form
 
         private void Form1_Load_1(object sender, EventArgs e)
         {
-            bw.DoWork += SerialPortReceive;
-            bw.RunWorkerAsync();
+            _bw.DoWork += SerialPortReceive;
+            _bw.RunWorkerAsync();
             Console.Read();
         }
 
         private void SerialPortReceive(object sender, DoWorkEventArgs e)
         {
             _serialPort.Open();
+
             while (true)
             {
-                char c = (char) _serialPort.ReadChar();
-                //direkt parametre olarak veremezsin. Data karakter karakter gelecek.
-                //aldığın veriyi parse etmen lazım. Parametre olarak char alan parser yaz
-                //zaten mesajın $ ile başlayıp \n ile bitecek. Arada , falan da var. Sanıyorum
-                //en sonunda checksum da olabilir.
+                // $GPGGA,hhmmss.dd,xxmm.dddd,<N|S>,yyymm.dddd,<E|W>,v,ss,d.d,h.h,M,g.g,M,a.a,xxxx*hh<CR><LF> formatında data Arduinodan karakter karakter gelecek.
                 
-                // ya da sürekli bir array'e veya linkedlist'e karakterleri doldur
-                // $ ile başlayıp \n ile biten bir satırını stringe çevir sonra
-                // split et , char'ı ile gelen datayı double'a çevir
-                
-                
-                
-                SetOverlay();
+                char[] charBufferValue = {};
+
+                int index = 0;
+                var charBuffer = new char[200];
+
+                while (true)
+                {
+                    var receivedChar = (char)_serialPort.ReadChar();
+                    charBuffer[index] = receivedChar;
+                    index++;
+                    if (receivedChar == 0x10) // lf'in hex değerini koy
+                    {
+                        var s = new String(charBufferValue, 0, index);
+                        String[] stringValues = s.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        index = 0;
+                    }
+                }
+
+
+                //double latitude = charBufferValue;
+                //double langtitude = charBufferValue;
+
+                //SetOverlay(latitude, langtitude);
             }
-// ReSharper disable once FunctionNeverReturns
+        // ReSharper disable FunctionNeverReturns
         }
 
-        public void SetOverlay()
+        public void SetOverlay(double serialDataLat,double serialDataLang)
         {
-            gMapControl.Position = new PointLatLng(41.081436, 29.012722);
+            gMapControl.Position = new PointLatLng(serialDataLat, serialDataLang);
             gMapControl.MapProvider = GMapProviders.GoogleMap;
             gMapControl.MouseWheelZoomType = MouseWheelZoomType.MousePositionAndCenter;
             //right click to drag map
@@ -57,9 +69,8 @@ public partial class Form1 : Form
             //overlay adjust
             _overlayOne = new GMapOverlay(gMapControl, "OverlayOne");
             //marker adjust
-            _overlayOne.Markers.Add(new GMap.NET.WindowsForms.Markers.GMapMarkerCross(new PointLatLng(41.081436, 29.012722)));
+            _overlayOne.Markers.Add(new GMap.NET.WindowsForms.Markers.GMapMarkerCross(new PointLatLng(serialDataLat, serialDataLang)));
             //pinning on map
             gMapControl.Overlays.Add(_overlayOne);
         }
     }
-}
