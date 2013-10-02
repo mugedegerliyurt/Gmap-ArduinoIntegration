@@ -25,10 +25,18 @@ public partial class Form1 : Form
             _serialPort.Open();
             while (true)
             {
-                _serialPort.ReadChar();
-                //burada read ettikten sonra gelen datayı parametre olarak setoverlay'e atmam gerekmez mi?
-                //gelen datayı da LatLangValues 'e set etmem gerekmez mi?
-                //o zaman tamamlanmış olmaz mı?
+                char c = (char) _serialPort.ReadChar();
+                //direkt parametre olarak veremezsin. Data karakter karakter gelecek.
+                //aldığın veriyi parse etmen lazım. Parametre olarak char alan parser yaz
+                //zaten mesajın $ ile başlayıp \n ile bitecek. Arada , falan da var. Sanıyorum
+                //en sonunda checksum da olabilir.
+                
+                // ya da sürekli bir array'e veya linkedlist'e karakterleri doldur
+                // $ ile başlayıp \n ile biten bir satırını stringe çevir sonra
+                // split et , char'ı ile gelen datayı double'a çevir
+                
+                
+                
                 SetOverlay();
             }
 // ReSharper disable once FunctionNeverReturns
