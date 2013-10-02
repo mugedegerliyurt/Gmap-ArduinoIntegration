@@ -25,7 +25,7 @@ public partial class Form1 : Form
             _serialPort.Open();
             while (true)
             {
-                _serialPort.Read();
+                _serialPort.ReadChar();
                 //burada read ettikten sonra gelen datayı parametre olarak setoverlay'e atmam gerekmez mi?
                 //gelen datayı da LatLangValues 'e set etmem gerekmez mi?
                 //o zaman tamamlanmış olmaz mı?
