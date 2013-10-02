@@ -41,17 +41,15 @@ public partial class Form1 : Form
                     charBuffer[index] = receivedChar;
                     index++;
 
-                    if (receivedChar == 0x10) // lf'in hex değerini koy
+                   if (receivedChar == 0x10) // lf'in hex değerini koy
                     {
                         var s = new String(charBufferValue, 0, index);
-                        //virgüle göre split ettik gelen dataları böylece her , de array e bir eleman atıyoruz.
+                        //virgüle göre split ettik gelen dataları, böylece her "," de array e bir eleman atıyoruz.
                         String[] stringValues = s.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-                        //ASCII kod çevrimi yapılmalı??
-
-                        //Arduino'dan sırası ile hangi datalar geliyorsa lat veya lang ona göre indexi belirtilmeli.
-                        latValue = stringValues[2];
-                        langValue = stringValues[3];
+                        //Arduino'dan gelen formatta lat ve lang indekslerinin alanları.
+                        string latValue = stringValues[2];
+                        string langValue = stringValues[4];
 
                         double latValueDouble = Convert.ToDouble(latValue);
                         double langValueInteger = Convert.ToDouble(langValue);
