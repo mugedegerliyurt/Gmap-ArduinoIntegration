@@ -1,12 +1,12 @@
- public partial class Form1 : Form
+public partial class Form1 : Form
     {
         GMapOverlay _overlayOne;
         public static String LatLangValues { get; set; }
-
+        BackgroundWorker bw = new BackgroundWorker();
         //Arduino seri portundan data çekmek için gerekli tanımlamalar.
         readonly SerialPort _serialPort = new SerialPort("COM3", 9600, Parity.None, 8, StopBits.None);
         private object _currentSerialSettings;
-        BackgroundWorker bw = new BackgroundWorker();
+        
 
         public Form1()
         {
@@ -15,45 +15,35 @@
 
         private void Form1_Load_1(object sender, EventArgs e)
         {
-            //Threads work asyncron so order is not important.
-            //To get serial data from Arduino
-            //Thread tid1 = new Thread(GetSerialDataThread);
-            //To set overlays on map from serial data from Arduino
-            //Thread tid2 = new Thread(SetOverlayFromSerialDataThread);
-            
-            //tid1.Start();
-            //tid2.Start();
-            
-            bw.DoWork += new DoWorkEventHandler(SerialPortReceive);
+            bw.DoWork += SerialPortReceive;
             bw.RunWorkerAsync();
             Console.Read();
         }
 
-        private void SerialPortReceive()
+        private void SerialPortReceive(object sender, DoWorkEventArgs e)
         {
-          _serialPort.Open();
-          while(true)
-          {
-            _serialPort.Read();
-           
-           
-           
-          }
-          
+            _serialPort.Open();
+            while (true)
+            {
+                _serialPort.Read();
+                //burada read ettikten sonra gelen datayı parametre olarak setoverlay'e atmam gerekmez mi?
+                //gelen datayı da LatLangValues 'e set etmem gerekmez mi?
+                //o zaman tamamlanmış olmaz mı?
+                SetOverlay();
+            }
+// ReSharper disable once FunctionNeverReturns
         }
 
-        public void SetOverlayFromSerialDataThread()
+        public void SetOverlay()
         {
             gMapControl.Position = new PointLatLng(41.081436, 29.012722);
-            gMapControl.MapProvider = GMapProviders.BingMap;
+            gMapControl.MapProvider = GMapProviders.GoogleMap;
             gMapControl.MouseWheelZoomType = MouseWheelZoomType.MousePositionAndCenter;
             //right click to drag map
             gMapControl.CanDragMap = true;
             gMapControl.MinZoom = 3;
             gMapControl.MaxZoom = 30;
             gMapControl.Zoom = 5;
-
-            //GMaps.Instance.Mode = AccessMode.CacheOnly;
 
             gMapControl.Manager.Mode = AccessMode.ServerAndCache;
             //overlay adjust
@@ -62,7 +52,6 @@
             _overlayOne.Markers.Add(new GMap.NET.WindowsForms.Markers.GMapMarkerCross(new PointLatLng(41.081436, 29.012722)));
             //pinning on map
             gMapControl.Overlays.Add(_overlayOne);
-
         }
-
     }
+}
