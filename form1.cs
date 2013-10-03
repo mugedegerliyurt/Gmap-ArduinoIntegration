@@ -47,8 +47,12 @@ public partial class Form1 : Form
 
                             double latValueDouble = Convert.ToDouble(value[0].Replace("=", "").Replace("LON",""));
                             double langValueDouble = Convert.ToDouble(value[1].Replace("=", "").Replace("LON", ""));
-
-                            SetOverlay(latValueDouble, langValueDouble);
+                            
+                            Invoke((MethodInvoker)(() =>
+                            {
+                                SetOverlay(latValueDouble, langValueDouble);
+                            }));
+                            
 
                             #region old code
                             ////GPGGA lat,lang datasının geldiği sıralama Fastrax için
