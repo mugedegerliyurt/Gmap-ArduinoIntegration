@@ -33,7 +33,7 @@ public partial class Form1 : Form
                     // $GPGGA,hhmmss.dd,xxmm.dddd,<N|S>,yyymm.dddd,<E|W>,v,ss,d.d,h.h,M,g.g,M,a.a,xxxx*hh<CR><LF> formatında data Arduinodan karakter karakter gelecek.
 
                     var index = 0;
-                    var charBuffer = new char[100000];
+                    var charBuffer = new char[100];
                     while (true)
                     {
                         var receivedChar = (char) _serialPort.ReadChar();
@@ -43,6 +43,7 @@ public partial class Form1 : Form
                         if (receivedChar == 0x0A) 
                         {
                             var s = new String(charBuffer, 0, index);
+                            index = 0;
                             //virgüle göre split ettik gelen dataları, böylece her "," de array e bir eleman atıyoruz.
                             String[] stringValues = s.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
                             
